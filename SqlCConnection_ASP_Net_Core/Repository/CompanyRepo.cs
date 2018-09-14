@@ -11,11 +11,13 @@ namespace SqlCConnection_ASP_Net_Core.Repository
 {
     public class CompanyRepo
     {
-        public static List<Company> Read()
+        
+        public List<Company> Read()
         {
             using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
             {
-                string query = @"   SELECT Id, 
+                string query = @"   SELECT 
+                                    Id, 
                                     Name, 
                                     PostCode, 
                                     City, 
@@ -29,11 +31,16 @@ namespace SqlCConnection_ASP_Net_Core.Repository
 
         }
 
-        public static Company ReadByID(int id)
+        public Company ReadByID(int id)
         {
+            if (id < 1)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
+            }
             using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
             {
-                string query = @"   SELECT Id, 
+                string query = @"   SELECT 
+                                    Id, 
                                     Name, 
                                     PostCode, 
                                     City, 
@@ -49,17 +56,44 @@ namespace SqlCConnection_ASP_Net_Core.Repository
             }
         }
 
-        public static Company AddOrUpdate(Company company)
+        public Company Create(CompanyDto companyDto)
+        {
+            return AddOrUpdate(companyDto);
+        }
+
+        public Company Update (CompanyDto companyDto, int id )
+        {
+            return AddOrUpdate(companyDto, id);
+        }
+
+        
+
+        private static Company AddOrUpdate(CompanyDto companyDto, int id = -1)
         {
             using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
             {
-                string companySelect = "spCompany";
+                string companySp = "spCompany";
 
                 var param = new DynamicParameters();
-                param.Add("@Id", company.Id);
-                param.Add("@Name", company.Name);
+                param.Add("@Id", id);
+                param.Add("@Name", companyDto.Name);
 
-                var companyResult = conn.QueryFirstOrDefault<Company>(companySelect, param, null, null, CommandType.StoredProcedure);
+                var companyAdd = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
+                
+                return companyAdd;                
+            }
+        }
+
+        public Company Delete(int id = -1)
+        {
+            using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+            {
+                string companySp = "spCompanyDelete";
+
+                var param = new DynamicParameters();
+                param.Add("@Id", id);
+
+                var companyResult = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
 
                 return companyResult;
             }
