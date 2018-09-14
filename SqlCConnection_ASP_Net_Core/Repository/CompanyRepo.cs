@@ -14,9 +14,12 @@ namespace SqlCConnection_ASP_Net_Core.Repository
         
         public List<Company> Read()
         {
-            using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+            List<Company> companyList;
+            try
             {
-                string query = @"   SELECT 
+                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                {
+                    string query = @"   SELECT 
                                     Id, 
                                     Name, 
                                     PostCode, 
@@ -25,21 +28,35 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                                     HouseNumber, 
                                     Country FROM [dbo].[viCompany]";
 
-                var companyList = conn.Query<Company>(query).ToList();
-                return companyList;
+                    companyList = conn.Query<Company>(query).ToList();
+                    
+                }
+            }
+            catch (Exception)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.SQLERROR);
+            }
+            if (companyList == null)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.NOTFOUND);
             }
 
-        }
+            return companyList;
 
-        public Company ReadByID(int id)
+        }
+        //--------------------------------------------------------------------------------------------------------
+        public Company ReadByID(int? id)
         {
+            Company company;
             if (id < 1)
             {
                 throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             }
-            using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+            try
             {
-                string query = @"   SELECT 
+                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                {
+                    string query = @"   SELECT 
                                     Id, 
                                     Name, 
                                     PostCode, 
@@ -47,13 +64,25 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                                     Street, 
                                     HouseNumber, 
                                     Country FROM [dbo].[viCompany] WHERE Id = @Id";
-                var param = new DynamicParameters();
-                param.Add("@Id", id);
+                    var param = new DynamicParameters();
+                    param.Add("@Id", id);
 
-                var company = conn.QueryFirstOrDefault<Company>(query, param);
-
-                return company;
+                    company = conn.QueryFirstOrDefault<Company>(query, param); 
+                }
             }
+            catch (SqlException)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.SQLERROR);
+            }
+            catch (Exception)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.ERROR);
+            }
+            if (company == null)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.NOTFOUND);
+            }
+            return company;
         }
 
         public Company Create(CompanyDto companyDto)
@@ -63,40 +92,87 @@ namespace SqlCConnection_ASP_Net_Core.Repository
 
         public Company Update (CompanyDto companyDto, int id )
         {
+            
             return AddOrUpdate(companyDto, id);
         }
 
-        
 
-        private static Company AddOrUpdate(CompanyDto companyDto, int id = -1)
+        //--------------------------------------------------------------------------------------------------------
+        private Company AddOrUpdate(CompanyDto companyDto, int id = -1)
         {
-            using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+            if (id != -1 && id < 1)
             {
-                string companySp = "spCompany";
-
-                var param = new DynamicParameters();
-                param.Add("@Id", id);
-                param.Add("@Name", companyDto.Name);
-
-                var companyAdd = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
-                
-                return companyAdd;                
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             }
-        }
 
+            int? returnId;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                {
+                    string companySp = "spCompany";
+
+                    var param = new DynamicParameters();
+                    param.Add("@Id", id);
+                    param.Add("@Name", companyDto.Name);
+                    param.Add("@DBId", DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+                    var companyAdd = conn.Execute(companySp, param, null, null, CommandType.StoredProcedure);
+                    returnId = param.Get<int>("@DBId");
+                    
+                }
+            }
+            catch (SqlException)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.SQLERROR);
+            }
+            catch (Exception)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.ERROR);
+            }
+            if (returnId == null)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.NOTFOUND);
+            }
+            return ReadByID(returnId);
+        }
+        
+        //--------------------------------------------------------------------------------------------------------
         public Company Delete(int id = -1)
         {
-            using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+            Company companyResult;
+            if (id != -1 && id < 1)
             {
-                string companySp = "spCompanyDelete";
-
-                var param = new DynamicParameters();
-                param.Add("@Id", id);
-
-                var companyResult = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
-
-                return companyResult;
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             }
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                {
+                    string companySp = "spCompanyDelete";
+
+                    var param = new DynamicParameters();
+                    param.Add("@Id", id);
+
+                    companyResult = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
+
+                    
+                }
+            }
+            catch (SqlException)
+            {
+
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.SQLERROR);
+            }
+            catch (Exception)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.ERROR);
+            }
+            if (companyResult == null)
+            {
+                throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.NOTFOUND);
+            }
+            return companyResult;
         }
     }
 }

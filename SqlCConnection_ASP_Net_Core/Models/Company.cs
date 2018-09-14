@@ -13,17 +13,5 @@ namespace SqlCConnection_ASP_Net_Core.Models
         public string Street { get; set; }
         public int? HouseNumber { get; set; }
         public string Country { get; set; }
-        
-
-        //public Company(int id, string name, int? postCode, string city, string street, int? houseNumber, string country)
-        //{
-        //    Id = id;
-        //    Name = name;
-        //    PostCode = postCode;
-        //    City = city;
-        //    Street = street;
-        //    HouseNumber = houseNumber;
-        //    Country = country;
-        //}
     }
 }

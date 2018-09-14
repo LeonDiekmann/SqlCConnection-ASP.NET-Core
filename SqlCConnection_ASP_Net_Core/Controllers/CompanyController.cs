@@ -19,30 +19,64 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                 _companyRepo = new CompanyRepo();
             return _companyRepo;
         }
-
+        //--------------------------------------------------------------------------------------------------------
         [HttpGet()]
         public IActionResult Get()
         {
-            var result = GetInstance().Read();
+            List<Company> result;
 
-            if (result == null)
+            try
             {
-                return NotFound();
+                result = GetInstance().Read();
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.NOTFOUND:
+                        return StatusCode(StatusCodes.Status404NotFound);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status400BadRequest);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
             }
             return Ok(result);
         }
-
+        //--------------------------------------------------------------------------------------------------------
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var result = GetInstance().ReadByID(id);
-            if (result == null)
+            Company result;
+            try
             {
-                return NotFound();
+                result = GetInstance().ReadByID(id);
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status406NotAcceptable);
+                    case Helper.UpdateResultType.NOTFOUND:
+                        return StatusCode(StatusCodes.Status404NotFound);
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status400BadRequest);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
             }
             return Ok(result);
         }
-
+        //--------------------------------------------------------------------------------------------------------
         [HttpPost]
         public IActionResult Add([FromBody] CompanyDto companyDto)
         {
@@ -56,40 +90,52 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
             {
                 switch (ex.Type)
                 {
-                    case Helper.UpdateResultType.OK:
-                        break;
                     case Helper.UpdateResultType.SQLERROR:
-                        break;
+                        return StatusCode(StatusCodes.Status406NotAcceptable);
                     case Helper.UpdateResultType.NOTFOUND:
-                        break;
+                        return StatusCode(StatusCodes.Status404NotFound);
                     case Helper.UpdateResultType.INVALIDEARGUMENT:
                         return StatusCode(StatusCodes.Status409Conflict);
                     case Helper.UpdateResultType.ERROR:
-                        break;
+                        return StatusCode(StatusCodes.Status400BadRequest);
                     default:
                         break;
                 }
                 return BadRequest();
                 throw;
             }
-            if (result == null)
-            {
-                return NoContent();
-            }
             return Ok(result);
         }
-
+        //--------------------------------------------------------------------------------------------------------
         [HttpPut("{id}")]
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
-            var result = GetInstance().Update(companyDto, id);
-            if (result == null)
+            Company result;
+            try
             {
-                BadRequest();
+                result = GetInstance().Update(companyDto, id);
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.SQLERROR:
+                        return StatusCode(StatusCodes.Status406NotAcceptable);
+                    case Helper.UpdateResultType.NOTFOUND:
+                        return StatusCode(StatusCodes.Status404NotFound);
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status409Conflict);
+                    case Helper.UpdateResultType.ERROR:
+                        return StatusCode(StatusCodes.Status400BadRequest);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
             }
             return Ok(result);
         }
-
+        //--------------------------------------------------------------------------------------------------------
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
