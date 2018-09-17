@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SqlCConnection_ASP_Net_Core.Interfaces;
 using SqlCConnection_ASP_Net_Core.Models;
 using SqlCConnection_ASP_Net_Core.Repository;
 using System;
@@ -9,16 +10,23 @@ using System.Threading.Tasks;
 
 namespace SqlCConnection_ASP_Net_Core.Controllers
 {
+    [Produces("application/json")]
     [Route("companies")]
     public class CompanyController : Controller
     {
-        static CompanyRepo _companyRepo;
-        public static CompanyRepo GetInstance()
+        private readonly ICompanyRepo _companyRepo;
+
+        public CompanyController(ICompanyRepo companyRepo)
         {
-            if (_companyRepo == null)
-                _companyRepo = new CompanyRepo();
-            return _companyRepo;
+            _companyRepo = companyRepo;
         }
+        //static CompanyRepo _companyRepo;
+        //public static CompanyRepo GetInstance()
+        //{
+        //    if (_companyRepo == null)
+        //        _companyRepo = new CompanyRepo();
+        //    return _companyRepo;
+        //}
         //--------------------------------------------------------------------------------------------------------
         [HttpGet()]
         public IActionResult Get()
@@ -27,7 +35,8 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
 
             try
             {
-                result = GetInstance().Read();
+                result = _companyRepo.Get();
+
             }
             catch (Helper.RepoException<Helper.UpdateResultType> ex)
             {
@@ -54,7 +63,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
             Company result;
             try
             {
-                result = GetInstance().ReadByID(id);
+                result = _companyRepo.GetById(id);
             }
             catch (Helper.RepoException<Helper.UpdateResultType> ex)
             {
@@ -84,7 +93,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
 
             try
             {
-                result = GetInstance().Create(companyDto);
+                result = _companyRepo.Create(companyDto);
             }
             catch (Helper.RepoException<Helper.UpdateResultType> ex)
             {
@@ -113,7 +122,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
             Company result;
             try
             {
-                result = GetInstance().Update(companyDto, id);
+                result = _companyRepo.Update(companyDto, id);
             }
             catch (Helper.RepoException<Helper.UpdateResultType> ex)
             {
@@ -139,7 +148,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var result = GetInstance().Delete(id);
+            var result = _companyRepo.Delete(id);
             return Ok(result);
         }
 

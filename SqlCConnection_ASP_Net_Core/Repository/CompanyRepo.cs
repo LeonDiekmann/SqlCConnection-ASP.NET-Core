@@ -6,13 +6,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using System.Data;
+using SqlCConnection_ASP_Net_Core.Interfaces;
 
 namespace SqlCConnection_ASP_Net_Core.Repository
 {
-    public class CompanyRepo
+    public class CompanyRepo : ICompanyRepo
     {
-        
-        public List<Company> Read()
+        IDbContext _dbContext;
+        public CompanyRepo(IDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        public List<Company> Get()
         {
             List<Company> companyList;
             try
@@ -45,7 +50,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
 
         }
         //--------------------------------------------------------------------------------------------------------
-        public Company ReadByID(int? id)
+        public Company GetById(int? id)
         {
             Company company;
             if (id < 1)
@@ -134,7 +139,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
             {
                 throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.NOTFOUND);
             }
-            return ReadByID(returnId);
+            return GetById(returnId);
         }
         
         //--------------------------------------------------------------------------------------------------------
@@ -174,5 +179,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
             }
             return companyResult;
         }
+
+        
     }
 }
