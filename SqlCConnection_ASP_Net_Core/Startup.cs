@@ -27,7 +27,6 @@ namespace SqlCConnection_ASP_Net_Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
 
             services.AddSingleton<IDbContext, DbContext>();

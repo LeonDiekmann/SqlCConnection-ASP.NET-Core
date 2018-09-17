@@ -31,6 +31,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpGet()]
         public IActionResult Get()
         {
+            
             List<Company> result;
 
             try
@@ -119,6 +120,9 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpPut("{id}")]
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
+            var authValue = Request.Headers["authorization"].ToString();
+            Console.WriteLine(authValue);
+            Console.WriteLine("Hallo");
             Company result;
             try
             {
