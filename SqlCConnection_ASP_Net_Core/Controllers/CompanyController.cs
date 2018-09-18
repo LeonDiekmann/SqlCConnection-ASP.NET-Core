@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SqlCConnection_ASP_Net_Core.Helper;
 using SqlCConnection_ASP_Net_Core.Interfaces;
 using SqlCConnection_ASP_Net_Core.Models;
 using SqlCConnection_ASP_Net_Core.Repository;
@@ -90,70 +91,91 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] CompanyDto companyDto)
         {
+            var authValue = Request.Headers["authorization"].ToString();
             Company result;
-
-            try
+            if (Authorization.decode(authValue) == true)
             {
-                result = _companyRepo.Create(companyDto);
-            }
-            catch (Helper.RepoException<Helper.UpdateResultType> ex)
-            {
-                switch (ex.Type)
+                try
                 {
-                    case Helper.UpdateResultType.SQLERROR:
-                        return StatusCode(StatusCodes.Status406NotAcceptable);
-                    case Helper.UpdateResultType.NOTFOUND:
-                        return StatusCode(StatusCodes.Status404NotFound);
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.ERROR:
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                    default:
-                        break;
+                    result = _companyRepo.Create(companyDto);
                 }
-                return BadRequest();
-                throw;
+                catch (Helper.RepoException<Helper.UpdateResultType> ex)
+                {
+                    switch (ex.Type)
+                    {
+                        case Helper.UpdateResultType.SQLERROR:
+                            return StatusCode(StatusCodes.Status406NotAcceptable);
+                        case Helper.UpdateResultType.NOTFOUND:
+                            return StatusCode(StatusCodes.Status404NotFound);
+                        case Helper.UpdateResultType.INVALIDEARGUMENT:
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case Helper.UpdateResultType.ERROR:
+                            return StatusCode(StatusCodes.Status400BadRequest);
+                        default:
+                            break;
+                    }
+                    return BadRequest();
+                    throw;
+                }
+                return Ok(result);
             }
-            return Ok(result);
+            else
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
         }
         //--------------------------------------------------------------------------------------------------------
         [HttpPut("{id}")]
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
             var authValue = Request.Headers["authorization"].ToString();
-            Console.WriteLine(authValue);
-            Console.WriteLine("Hallo");
             Company result;
-            try
+            if (Authorization.decode(authValue) == true)
             {
-                result = _companyRepo.Update(companyDto, id);
-            }
-            catch (Helper.RepoException<Helper.UpdateResultType> ex)
-            {
-                switch (ex.Type)
+                try
                 {
-                    case Helper.UpdateResultType.SQLERROR:
-                        return StatusCode(StatusCodes.Status406NotAcceptable);
-                    case Helper.UpdateResultType.NOTFOUND:
-                        return StatusCode(StatusCodes.Status404NotFound);
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status409Conflict);
-                    case Helper.UpdateResultType.ERROR:
-                        return StatusCode(StatusCodes.Status400BadRequest);
-                    default:
-                        break;
+                    result = _companyRepo.Update(companyDto, id);
                 }
-                return BadRequest();
-                throw;
+                catch (Helper.RepoException<Helper.UpdateResultType> ex)
+                {
+                    switch (ex.Type)
+                    {
+                        case Helper.UpdateResultType.SQLERROR:
+                            return StatusCode(StatusCodes.Status406NotAcceptable);
+                        case Helper.UpdateResultType.NOTFOUND:
+                            return StatusCode(StatusCodes.Status404NotFound);
+                        case Helper.UpdateResultType.INVALIDEARGUMENT:
+                            return StatusCode(StatusCodes.Status409Conflict);
+                        case Helper.UpdateResultType.ERROR:
+                            return StatusCode(StatusCodes.Status400BadRequest);
+                        default:
+                            break;
+                    }
+                    return BadRequest();
+                    throw;
+                }
+                return Ok(result);
             }
-            return Ok(result);
+            else
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
         }
         //--------------------------------------------------------------------------------------------------------
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var result = _companyRepo.Delete(id);
-            return Ok(result);
+            var authValue = Request.Headers["authorization"].ToString();
+            if (Authorization.decode(authValue) == true)
+            {
+                var result = _companyRepo.Delete(id);
+                return Ok(result);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+            
         }
 
         
