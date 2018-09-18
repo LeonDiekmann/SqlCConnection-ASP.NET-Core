@@ -102,7 +102,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                 switch (ex.Type)
                 {
                     case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status401Unauthorized);
+                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
                     default:
                         break;
                 }
@@ -157,7 +157,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                 switch (ex.Type)
                 {
                     case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status401Unauthorized);
+                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
                     default:
                         break;
                 }
@@ -211,7 +211,7 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                 switch (ex.Type)
                 {
                     case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        return StatusCode(StatusCodes.Status401Unauthorized);
+                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
                     default:
                         break;
                 }
