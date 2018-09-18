@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using SqlCConnection_ASP_Net_Core.Helper;
 using SqlCConnection_ASP_Net_Core.Interfaces;
 using SqlCConnection_ASP_Net_Core.Models;
@@ -21,18 +22,10 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         {
             _companyRepo = companyRepo;
         }
-        //static CompanyRepo _companyRepo;
-        //public static CompanyRepo GetInstance()
-        //{
-        //    if (_companyRepo == null)
-        //        _companyRepo = new CompanyRepo();
-        //    return _companyRepo;
-        //}
         //--------------------------------------------------------------------------------------------------------
         [HttpGet()]
         public IActionResult Get()
         {
-            
             List<Company> result;
 
             try
