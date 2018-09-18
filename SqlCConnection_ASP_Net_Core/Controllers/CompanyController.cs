@@ -92,8 +92,26 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         public IActionResult Add([FromBody] CompanyDto companyDto)
         {
             var authValue = Request.Headers["authorization"].ToString();
+            bool auth;
+            try
+            {
+                auth = Authorization.decode(authValue);
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status401Unauthorized);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
             Company result;
-            if (Authorization.decode(authValue) == true)
+            
+            if (auth == true)
             {
                 try
                 {
@@ -129,8 +147,25 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
             var authValue = Request.Headers["authorization"].ToString();
+            bool auth;
+            try
+            {
+                auth = Authorization.decode(authValue);
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status401Unauthorized);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
             Company result;
-            if (Authorization.decode(authValue) == true)
+            if (auth == true)
             {
                 try
                 {
@@ -166,7 +201,24 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         public IActionResult Delete(int id)
         {
             var authValue = Request.Headers["authorization"].ToString();
-            if (Authorization.decode(authValue) == true)
+            bool auth;
+            try
+            {
+                auth = Authorization.decode(authValue);
+            }
+            catch (Helper.RepoException<Helper.UpdateResultType> ex)
+            {
+                switch (ex.Type)
+                {
+                    case Helper.UpdateResultType.INVALIDEARGUMENT:
+                        return StatusCode(StatusCodes.Status401Unauthorized);
+                    default:
+                        break;
+                }
+                return BadRequest();
+                throw;
+            }
+            if (auth == true)
             {
                 var result = _companyRepo.Delete(id);
                 return Ok(result);
