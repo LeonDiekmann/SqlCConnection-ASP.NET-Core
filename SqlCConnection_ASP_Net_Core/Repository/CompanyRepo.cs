@@ -20,9 +20,10 @@ namespace SqlCConnection_ASP_Net_Core.Repository
         public List<Company> Get()
         {
             List<Company> companyList;
+            var con = _dbContext.GetCompany();
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                using (con)
                 {
                     string query = @"   SELECT 
                                     Id, 
@@ -33,7 +34,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                                     HouseNumber, 
                                     Country FROM [dbo].[viCompany]";
 
-                    companyList = conn.Query<Company>(query).ToList();
+                    companyList = con.Query<Company>(query).ToList();
                     
                 }
             }
@@ -53,13 +54,14 @@ namespace SqlCConnection_ASP_Net_Core.Repository
         public Company GetById(int? id)
         {
             Company company;
+            var con = _dbContext.GetCompany();
             if (id < 1)
             {
                 throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             }
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                using (con)
                 {
                     string query = @"   SELECT 
                                     Id, 
@@ -72,7 +74,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                     var param = new DynamicParameters();
                     param.Add("@Id", id);
 
-                    company = conn.QueryFirstOrDefault<Company>(query, param); 
+                    company = con.QueryFirstOrDefault<Company>(query, param); 
                 }
             }
             catch (SqlException)
@@ -111,9 +113,10 @@ namespace SqlCConnection_ASP_Net_Core.Repository
             }
 
             int? returnId;
+            var con = _dbContext.GetCompany();
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                using (con)
                 {
                     string companySp = "spCompany";
 
@@ -122,7 +125,7 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                     param.Add("@Name", companyDto.Name);
                     param.Add("@DBId", DbType.Int32, direction: ParameterDirection.ReturnValue);
 
-                    var companyAdd = conn.Execute(companySp, param, null, null, CommandType.StoredProcedure);
+                    var companyAdd = con.Execute(companySp, param, null, null, CommandType.StoredProcedure);
                     returnId = param.Get<int>("@DBId");
                     
                 }
@@ -146,20 +149,21 @@ namespace SqlCConnection_ASP_Net_Core.Repository
         public Company Delete(int id = -1)
         {
             Company companyResult;
+            var con = _dbContext.GetCompany();
             if (id != -1 && id < 1)
             {
                 throw new Helper.RepoException<Helper.UpdateResultType>(Helper.UpdateResultType.INVALIDEARGUMENT);
             }
             try
             {
-                using (SqlConnection conn = new SqlConnection(Properties.Resources.connString))
+                using (con)
                 {
                     string companySp = "spCompanyDelete";
 
                     var param = new DynamicParameters();
                     param.Add("@Id", id);
 
-                    companyResult = conn.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
+                    companyResult = con.QueryFirstOrDefault<Company>(companySp, param, null, null, CommandType.StoredProcedure);
 
                     
                 }

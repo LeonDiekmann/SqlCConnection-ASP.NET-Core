@@ -7,10 +7,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SqlCConnection_ASP_Net_Core.Helper;
 using SqlCConnection_ASP_Net_Core.Interfaces;
 using SqlCConnection_ASP_Net_Core.Models;
 using SqlCConnection_ASP_Net_Core.Repository;
+using TobitLogger.Core;
+using TobitLogger.Logstash;
+using TobitLogger.Middleware;
+using TobitWebApiExtensions.Extensions;
 
 namespace SqlCConnection_ASP_Net_Core
 {
@@ -21,26 +26,38 @@ namespace SqlCConnection_ASP_Net_Core
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
         }
 
         public IConfiguration Configuration { get; }
+        //public ILoggerFactory LoggerFactory { get; }
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddMvc();
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
+
+            //services.AddChaynsToken();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<ILogContextProvider, RequestGuidContextProvider>();
 
             services.AddSingleton<IDbContext, DbContext>();
             services.AddScoped<ICompanyRepo, CompanyRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ILogContextProvider logContextProvider)
         {
+            loggerFactory.AddLogstashLogger(Configuration.GetSection("LogstashLogger"), logContextProvider: logContextProvider);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseRequestLogging();
+
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
