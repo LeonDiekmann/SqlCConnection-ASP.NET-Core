@@ -104,34 +104,8 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] CompanyDto companyDto)
         {
-            var authValue = Request.Headers["authorization"].ToString();
-            bool auth;
             _logger.LogInformation("Get request started");
-
-            try
-            {
-                auth = Authorization.decode(authValue);
-            }
-            catch (Helper.RepoException<Helper.UpdateResultType> ex)
-            {
-                var logObj = new ExceptionData(ex);
-                logObj.CustomNumber = 12345;
-                logObj.CustomText = "getbyid invalid token";
-                switch (ex.Type)
-                {
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        _logger.Error(logObj);
-                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
-                    default:
-                        break;
-                }
-                return BadRequest();
-                throw;
-            }
             Company result;
-            
-            if (auth == true)
-            {
                 try
                 {
                     result = _companyRepo.Create(companyDto);
@@ -162,45 +136,14 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                     throw;
                 }
                 return Ok(result);
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
         }
         //--------------------------------------------------------------------------------------------------------
         [Authorize(Roles = "1")]
         [HttpPut("{id}")]
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
-            var authValue = Request.Headers["authorization"].ToString();
-            bool auth;
-            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
-            var groups = HttpContext.GetUacGroups();
             _logger.LogInformation("Get request started");
-            try
-            {
-                auth = Authorization.decode(authValue);
-            }
-            catch (Helper.RepoException<Helper.UpdateResultType> ex)
-            {
-                var logObj = new ExceptionData(ex);
-                logObj.CustomNumber = 12345;
-                logObj.CustomText = "getbyid invalid token";
-                switch (ex.Type)
-                {
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        _logger.Error(logObj);
-                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
-                    default:
-                        break;
-                }
-                return BadRequest();
-                throw;
-            }
             Company result;
-            if (auth == true)
-            {
                 try
                 {
                     result = _companyRepo.Update(companyDto, id);
@@ -231,50 +174,14 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                     throw;
                 }
                 return Ok(result);
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
         }
         //--------------------------------------------------------------------------------------------------------
         [Authorize(Roles = "1")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var authValue = Request.Headers["authorization"].ToString();
-            _logger.LogInformation("Get request started");
-            bool auth;
-            try
-            {
-                auth = Authorization.decode(authValue);
-            }
-            catch (Helper.RepoException<Helper.UpdateResultType> ex)
-            {
-                var logObj = new ExceptionData(ex);
-                logObj.CustomNumber = 12345;
-                logObj.CustomText = "update Error";
-                switch (ex.Type)
-                {
-                    case Helper.UpdateResultType.INVALIDEARGUMENT:
-                        _logger.Error(logObj);
-                        return StatusCode(StatusCodes.Status409Conflict, "Invalid token");
-                    default:
-                        break;
-                }
-                return BadRequest();
-                throw;
-            }
-            if (auth == true)
-            {
                 var result = _companyRepo.Delete(id);
-                return Ok(result);
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized);
-            }
-            
+                return Ok(result);            
         }
 
         

@@ -37,7 +37,7 @@ namespace SqlCConnection_ASP_Net_Core
             services.AddMvc();
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
 
-            //services.AddChaynsToken();
+            services.AddChaynsToken();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<ILogContextProvider, RequestGuidContextProvider>();
@@ -54,10 +54,10 @@ namespace SqlCConnection_ASP_Net_Core
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseAuthentication();
             app.UseRequestLogging();
 
-            app.UseAuthentication();
+            
             app.UseMvc();
         }
     }
