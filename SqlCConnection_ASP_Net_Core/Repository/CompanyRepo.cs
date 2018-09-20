@@ -13,9 +13,13 @@ namespace SqlCConnection_ASP_Net_Core.Repository
     public class CompanyRepo : ICompanyRepo
     {
         IDbContext _dbContext;
-        public CompanyRepo(IDbContext dbContext)
+        IMessageHelper _messageHelper;
+        IGroupHelper _groupHelper;
+        public CompanyRepo(IDbContext dbContext, IMessageHelper messageHelper, IGroupHelper groupHelper)
         {
             _dbContext = dbContext;
+            _messageHelper = messageHelper;
+            _groupHelper = groupHelper;
         }
         public List<Company> Get()
         {
@@ -35,7 +39,9 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                                     Country FROM [dbo].[viCompany]";
 
                     companyList = con.Query<Company>(query).ToList();
-                    
+                    _groupHelper.GetGroups();
+                    _groupHelper.GetMembers(1);
+                    _groupHelper.GetGroupsOfMember(1808455);
                 }
             }
             catch (Exception)
@@ -74,7 +80,15 @@ namespace SqlCConnection_ASP_Net_Core.Repository
                     var param = new DynamicParameters();
                     param.Add("@Id", id);
 
-                    company = con.QueryFirstOrDefault<Company>(query, param); 
+                    company = con.QueryFirstOrDefault<Company>(query, param);
+                    _messageHelper.SendIntercom($"Deine Anfrage hat folgendes ergeben:\n" +
+                                                                                        $"ID: {company.Id}\n" +
+                                                                                        $"Name: {company.Name}\n" +
+                                                                                        $"Postleitzahl: {company.PostCode}\n" +
+                                                                                        $"Stadt: {company.City}\n" +
+                                                                                        $"Straße: {company.Street}\n" +
+                                                                                        $"Hausnummer: {company.HouseNumber}\n" +
+                                                                                        $"Land: {company.Country}");
                 }
             }
             catch (SqlException)

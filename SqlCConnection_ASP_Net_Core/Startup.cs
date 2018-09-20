@@ -36,6 +36,7 @@ namespace SqlCConnection_ASP_Net_Core
 
             services.AddMvc();
             services.Configure<DbSettings>(Configuration.GetSection("DbSettings"));
+            services.Configure<ChaynsApiInfo>(Configuration.GetSection("ChaynsBackendApi"));
 
             services.AddChaynsToken();
 
@@ -44,6 +45,8 @@ namespace SqlCConnection_ASP_Net_Core
 
             services.AddSingleton<IDbContext, DbContext>();
             services.AddScoped<ICompanyRepo, CompanyRepo>();
+            services.AddScoped<IMessageHelper, MessageHelper>();
+            services.AddScoped<IGroupHelper, GroupHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
