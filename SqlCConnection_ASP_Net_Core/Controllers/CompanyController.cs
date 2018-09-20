@@ -104,8 +104,11 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
         [HttpPost]
         public IActionResult Add([FromBody] CompanyDto companyDto)
         {
-            _logger.LogInformation("Get request started");
-            Company result;
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            if (_user.LocationId == 158753)
+            {
+                _logger.LogInformation("Get request started");
+                Company result;
                 try
                 {
                     result = _companyRepo.Create(companyDto);
@@ -136,14 +139,19 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                     throw;
                 }
                 return Ok(result);
+            }
+            return StatusCode(StatusCodes.Status401Unauthorized);
         }
         //--------------------------------------------------------------------------------------------------------
         [Authorize(Roles = "1")]
         [HttpPut("{id}")]
         public IActionResult Update([FromBody] CompanyDto companyDto, int id)
         {
-            _logger.LogInformation("Get request started");
-            Company result;
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            if (_user.LocationId == 158753)
+            {
+                _logger.LogInformation("Get request started");
+                Company result;
                 try
                 {
                     result = _companyRepo.Update(companyDto, id);
@@ -174,14 +182,21 @@ namespace SqlCConnection_ASP_Net_Core.Controllers
                     throw;
                 }
                 return Ok(result);
+            }
+            return StatusCode(StatusCodes.Status401Unauthorized);
         }
         //--------------------------------------------------------------------------------------------------------
         [Authorize(Roles = "1")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var _user = HttpContext.GetTokenPayload<Auth.Models.LocationUserTokenPayload>();
+            if (_user.LocationId == 158753)
+            {
                 var result = _companyRepo.Delete(id);
-                return Ok(result);            
+                return Ok(result);
+            }
+            return StatusCode(StatusCodes.Status401Unauthorized);
         }
 
         
