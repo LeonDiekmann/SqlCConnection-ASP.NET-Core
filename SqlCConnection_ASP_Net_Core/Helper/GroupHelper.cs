@@ -58,7 +58,8 @@ namespace SqlCConnection_ASP_Net_Core.Helper
                 }
                 
             }
-
+            Console.WriteLine(groupList[0]);
+            Console.WriteLine(groupList[1]);
             return groupList;
         }
     }
